@@ -1,18 +1,15 @@
-export default class Item {
-    constructor(title) {
-        this.id = Math.round(Math.random() * 100000).toString();
-        this.title = title;
-        this.done = false;
+export default class Field {
+    constructor(id, ruleId) {
+        this.id = id;
+
+        this.text = "";
+        this.ruleId = ruleId;
+        this.ruleIsApplied = false;
 
         this.onChangeCallback = null;
         return this.initOnModelChange();
     }
 
-    toggleDone() {
-        this.done = !this.done;
-        return this.done;
-    }
-    
     setOnChangeCallback() {
         this.onChangeCallback = onChangeCallback;
     }

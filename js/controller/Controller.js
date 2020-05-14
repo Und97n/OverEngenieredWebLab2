@@ -1,44 +1,94 @@
-import Item from "../model/Item.js";
+import Field from "../model/Field.js";
+import Rule from "../model/Rule.js"
 
 export default class Controller {
-    constructor(itemListModel, itemListView) {
-        this.itemListModel = itemListModel;
-        this.itemListView = itemListView;
-        this.itemListModel.setOnChangeCallback((e) => this.onChangeCallback(e));
-        this.itemListView.setControllerOnAddItem(this.addItem);
-        this.itemListView.setControllerOnDelItem(this.delItem);
+    constructor(model, view) {
+        this.model = model;
+        this.view = view;
+
+        this.model.setOnFieldChangeCallback((e) => this.onFieldChangeCallback(e));
+        this.view.setControllerOnAddField(this.addField);
+        this.view.setControllerOnDelField(this.delField);
+        this.view.setControllerOnFieldChange((e) => this.onFieldUpdateСallback(e));
+
+        this.model.setOnRuleChangeCallback((e) => this.onRuleChangeCallback(e));
+        this.view.setControllerOnAddRule(this.addRule);
+        this.view.setControllerOnDelRule(this.delRule);
+        this.view.setControllerOnRuleChange((e) => this.onRuleUpdateCallback(e))
+
         this.initOnModelChange();
-        this.itemListView.setControllerOnCheckbox(this.itemToggleDone);        
-        document.querySelector('#add-item').addEventListener('click', (e)=>itemListView.onAddItem(e));
+
+        document.querySelector('#add-field').addEventListener('click', (e)=> {
+            var i = prompt("How many fields?", 1);
+            for (; i > 0; --i) {
+                view.onAddField(e);
+            } 
+        });
+        document.querySelector('#add-rule').addEventListener('click', (e)=>view.onAddRule(e));
+
+        this.worker = new Worker('js/worker.js');
+        this.worker.onmessage = (value) => {
+            if (value.data != null && value.data != undefined && value.data != NaN) {
+                this.fieldListModel.fields.find(x => x.id = value.data.fieldId).ruleIsApplied = value.data.result;
+            }
+        }
     }
 
-    onChangeCallback() {
-        /* updates UI when a model has changed (title, done attributes) */
-        document.querySelector('#to-do').innerHTML = this.itemListView.toHtml();
+    onFieldUpdateСallback(id) {
+        var field = this.model.getFieldById(id);
+        var rule = this.model.getRuleById(field.ruleId);
+        this.worker.postMessage({fieldId: field.id, regexp: rule.regexp, text: field.text});
     }
 
-    itemToggleDone(id) { 
-        this.itemListModel.toggleDone([id]);
+    onRuleUpdateCallback(rule) {
+        rule.regexp = new RegExp(rule.text);
     }
 
-    addItem(title) {
-        const item = new Item(title);
-        this.itemListModel.add(item);
+    onFieldChangeCallback(field) {
+        document.querySelector('#fields-lst').innerHTML = this.view.fieldsToHtml();
     }
 
-    delItem(id) { 
-        this.itemListModel.delete(id);
+    onRuleChangeCallback(rule) {
+        document.querySelector('#rules-lst').innerHTML = this.view.rulesToHtml();  
+    }
+
+    addField() {
+        var rl = this.model.rules.length;
+        const field = new Field(Math.round(Math.random()*100000), Math.round(Math.random()*rl));
+        this.model.addField(field);
+    }
+
+    delField(id) {+
+        this.model.deleteField(id);
+    }
+
+    addRule(text) {
+        const rule = new Rule(Math.round(Math.random()*100000), text);
+        this.model.addRule(rule);
+    }
+
+    delRule(id) {
+        this.model.deleteRule(id);
     }
 
     initOnModelChange() {
-        /* updates UI when a model list has changed (adds, deletes items) */
-        let handler = {
+        let handler1 = {
             set: (obj, prop, val) => {
                 obj[prop] = val;
-                document.querySelector('#to-do').innerHTML = this.itemListView.toHtml();
+                document.querySelector('#fields-lst').innerHTML = this.view.fieldsToHtml();
+
                 return true;
             }
         }
-        this.itemListModel.items = new Proxy(this.itemListModel.items, handler);
+        this.model.fields = new Proxy(this.model.fields, handler1);
+
+        let handler2 = {
+            set: (obj, prop, val) => {
+                obj[prop] = val;
+                document.querySelector('#rules-lst').innerHTML = this.view.rulesToHtml();
+                return true;
+            }
+        }
+        this.model.rules = new Proxy(this.model.rules, handler2);
     }
 }

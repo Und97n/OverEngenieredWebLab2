@@ -1,15 +1,9 @@
-import ItemListModel from './model/ItemListModel.js';
-import ItemListView from './view/ItemListView.js';
+import Model from './model/Model.js';
+import View from './view/View.js';
+
 import Controller from './controller/Controller.js';
 
-let itemListModel = new ItemListModel();
-let itemListView = new ItemListView(itemListModel);
+let model = new Model();
+let view = new View(model);
 
-let controller = new Controller(itemListModel, itemListView);
-
-controller.addItem('First Item');
-controller.addItem('Second Item');
-
-//itemListModel.delete(item1.id);
-//itemListModel.toggleDone([item2.id]);
-
+let controller = new Controller(model, view);
