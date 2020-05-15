@@ -48,11 +48,11 @@ export default class View {
     }
 
     onFieldChange(e) {
-        this.controllerOnFieldChange(Number(e.target.id));
+        this.controllerOnFieldChange(Number(e.target.id), e.target.value);
     }
 
     onRuleChange(e) {
-        this.controllerOnRuleChange(Number(e.target.id));
+        this.controllerOnRuleChange(Number(e.target.id), e.target.value);
     }
 
     onFieldClick(e) {
@@ -63,7 +63,6 @@ export default class View {
     }
 
     onRuleClick(e) {
-        console.log(e);
         if (e.target.className === 'delr-button') {
             this.controllerOnDelRule(e.target.dataset.id);
             return;
@@ -84,7 +83,7 @@ export default class View {
             const fieldView = new FieldView(field);
             return fieldView.toHtml();
         }).join("");
-        return `<table border="1">${fieldsHtml}</table>`;
+        return `<table border="0">${fieldsHtml}</table>`;
     }
 
     rulesToHtml() {
@@ -92,6 +91,6 @@ export default class View {
             const ruleView = new RuleView(rule);
             return ruleView.toHtml();
         }).join("");
-        return `<table border="1">${rulesHtml}</table>`;
+        return `<table border="0">${rulesHtml}</table>`;
     }
 }

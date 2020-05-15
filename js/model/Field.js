@@ -18,7 +18,7 @@ export default class Field {
         let handler = {
             set: (obj, prop, val) => {
                 obj[prop] = val;
-                if (this.onChangeCallback) this.onChangeCallback(this);
+                if (this.onChangeCallback && prop != "text") this.onChangeCallback(this);
                 return true;
             }
         }

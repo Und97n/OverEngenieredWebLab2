@@ -1,0 +1,46 @@
+* {
+    margin: 10;
+    padding: 10;
+    left: 50%;
+    text-color: white;
+}
+
+body {
+    color: white;
+    background-color: #698694;
+  }
+
+.delr-button {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    margin: 2px;
+    cursor: pointer;
+    background: #698694;
+    color: white;
+    border: none;
+}
+
+.delf-button {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    margin: 2px;
+    cursor: pointer;
+    background: #698694;
+    color: white;
+    border: none;
+}
+
+.button {
+    font-size: 15px;
+    margin: 2px;
+    cursor: pointer;
+    background: #698694;
+    color: white;
+    border: none;
+}
+
+.txtf {
+    text-align: left;
+}

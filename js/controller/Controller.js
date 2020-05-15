@@ -9,12 +9,12 @@ export default class Controller {
         this.model.setOnFieldChangeCallback((e) => this.onFieldChangeCallback(e));
         this.view.setControllerOnAddField(this.addField);
         this.view.setControllerOnDelField(this.delField);
-        this.view.setControllerOnFieldChange((e) => this.onFieldUpdateСallback(e));
+        this.view.setControllerOnFieldChange((e, d) => this.onFieldUpdateСallback(e, d));
 
         this.model.setOnRuleChangeCallback((e) => this.onRuleChangeCallback(e));
         this.view.setControllerOnAddRule(this.addRule);
         this.view.setControllerOnDelRule(this.delRule);
-        this.view.setControllerOnRuleChange((e) => this.onRuleUpdateCallback(e))
+        this.view.setControllerOnRuleChange((e, d) => this.onRuleUpdateCallback(e, d))
 
         this.initOnModelChange();
 
@@ -29,19 +29,34 @@ export default class Controller {
         this.worker = new Worker('js/worker.js');
         this.worker.onmessage = (value) => {
             if (value.data != null && value.data != undefined && value.data != NaN) {
-                this.fieldListModel.fields.find(x => x.id = value.data.fieldId).ruleIsApplied = value.data.result;
+                this.model.getFieldById(value.data.fieldId).ruleIsApplied = value.data.result;
             }
         }
     }
 
-    onFieldUpdateСallback(id) {
-        var field = this.model.getFieldById(id);
-        var rule = this.model.getRuleById(field.ruleId);
-        this.worker.postMessage({fieldId: field.id, regexp: rule.regexp, text: field.text});
+    onFieldUpdateСallback(id, text) {
+        let field = this.model.getFieldById(id);
+        field.text = text;
+        let rule = this.model.getRuleById(field.ruleId);
+        this.worker.postMessage({fieldId: field.id, regexp: rule.regexp, text: text});
     }
 
-    onRuleUpdateCallback(rule) {
-        rule.regexp = new RegExp(rule.text);
+    onRuleUpdateCallback(id, text) {
+        // Just delete rule
+        if (text == "") {
+            this.delRule(id);
+        } else {
+            let rule = this.model.getRuleById(id);
+            rule.text = text;
+            rule.regexp = new RegExp(text);
+    
+            let to_update = this.model.fields.filter((field) => field.ruleId == id);
+    
+            to_update.forEach(element => {
+                // Bad practice...
+                this.onFieldUpdateСallback(element.id, element.text);
+            });
+        }
     }
 
     onFieldChangeCallback(field) {
@@ -53,22 +68,36 @@ export default class Controller {
     }
 
     addField() {
-        var rl = this.model.rules.length;
-        const field = new Field(Math.round(Math.random()*100000), Math.round(Math.random()*rl));
-        this.model.addField(field);
+        if (this.model.rules.length == 0) {
+            alert("No rules are defined");
+        } else {
+            var rl = Math.floor(Math.random()*this.model.rules.length);
+            console.log("Rule for new field: " + rl);
+            const field = new Field(Math.round(Math.random()*100000), this.model.rules[rl].id);
+            this.model.addField(field);
+        }
     }
 
-    delField(id) {+
-        this.model.deleteField(id);
+    delField(id) {
+        this.model.deleteField(this.model.getFieldById(id));
     }
 
     addRule(text) {
-        const rule = new Rule(Math.round(Math.random()*100000), text);
-        this.model.addRule(rule);
+        if(text != null) {
+            let rule = new Rule(Math.round(Math.random()*100000), text);
+            this.model.addRule(rule);
+        }
     }
 
     delRule(id) {
-        this.model.deleteRule(id);
+        this.model.deleteRule(this.model.getRuleById(id));
+
+        // Because of Proxy
+        let to_delete = this.model.fields.filter((field) => field.ruleId == id);
+
+        to_delete.forEach(element => {
+            this.model.deleteField(element);
+        });
     }
 
     initOnModelChange() {

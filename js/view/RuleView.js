@@ -6,14 +6,11 @@ export default class ruleView {
     toHtml() {
         return `
             <tr>
+                <td>
+                    <button data-id="${this.ruleModel.id}" class="delr-button">x</button>
+                </td>
                 <td style="color: gray">
-                    ${this.ruleModel.text}
-                </td>
-                <td>
-                    ${this.ruleModel.id}
-                </td>
-                <td>
-                    <button data-id="${this.ruleModel.id}" class="delr-button">Delete</button>
+                    <input class="txtf" type="text" value=${this.ruleModel.text} id="${this.ruleModel.id}">
                 </td>
             </tr>`;
     }

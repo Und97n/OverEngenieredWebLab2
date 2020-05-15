@@ -8,12 +8,12 @@ export default class Model {
 
     getFieldById(id) {
         // There are some problems with `find`, so numbers
-        return this.fields[this.fields.findIndex((x) => x.id === id)];
+        return this.fields[this.fields.findIndex((x) => x.id == id)];
     }
 
     getRuleById(id) {
         // There are some problems with `find`, so numbers
-        return this.rules[this.rules.findIndex((x) => x.id === id)];
+        return this.rules[this.rules.findIndex((x) => x.id == id)];
     }
 
     addField(field) {
@@ -26,14 +26,12 @@ export default class Model {
         this.rules.push(rule);
     }
 
-    deleteField(fieldId) {
-        const fieldIndex = this.fields.findIndex((field) => field.id === fieldId); 
-        this.fields.splice(fieldIndex, 1);
+    deleteField(field) {
+        this.fields.splice(this.fields.indexOf(field), 1);
     }
 
-    deleteRule(ruleId) {
-        const ruleIndex = this.rules.findIndex( (rule) => rule.id === ruleId); 
-        this.rules.splice(ruleIndex, 1);
+    deleteRule(rule) {
+        this.rules.splice(this.rules.indexOf(rule), 1);
     }
 
     setOnFieldChangeCallback(onChangeCallback) {

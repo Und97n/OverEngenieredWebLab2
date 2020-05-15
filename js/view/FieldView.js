@@ -4,18 +4,18 @@ export default class FieldView {
     }
 
     toHtml() {
-        const applied = (this.fieldModel.applied) ? "correct" : "wrong";
-        const color = (this.fieldModel.applied) ? "green" : "red";
+        const applied = (this.fieldModel.ruleIsApplied) ? "correct" : "wrong";
+        const color = (this.fieldModel.ruleIsApplied) ? "green" : "red";
         return `
             <tr>
-                <td style="color: ${color}">
-                    <input id="${this.fieldModel.id}" type="text" value=${this.fieldModel.text}>
+                <td>
+                    <button data-id="${this.fieldModel.id}" class="delf-button">x</button>
+                </td>
+                <td>
+                    <input style="border-color: ${color}"id="${this.fieldModel.id}" type="text" value=${this.fieldModel.text}>
                 </td>
                 <td>
                     ${applied}
-                </td>
-                <td>
-                    <button data-id="${this.fieldModel.id}" class="delf-button">Delete</button>
                 </td>
             </tr>`;
     }
