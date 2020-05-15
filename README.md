@@ -1,2 +1,2 @@
 # Regexper
-![example.png]
+![](example.png)
